@@ -6,5 +6,5 @@
 	"description": "A chess study helper and PGN viewer/editor.",
 	"author": "Christoph Lindstädt",
 	"authorUrl": "https://github.com/chrislicodes",
-	"isDesktopOnly": true
+	"isDesktopOnly": false
 }
