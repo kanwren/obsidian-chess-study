@@ -57,8 +57,14 @@ export const ChessStudy = ({
 	dataAdapter,
 }: AppProps) => {
 	// Parse Obsidian / Code Block Settings
-	const { boardColor, boardOrientation, viewComments, chessStudyId } =
-		parseUserConfig(pluginSettings, source);
+	const {
+		boardColor,
+		boardOrientation,
+		viewComments,
+		chessStudyId,
+		boardSize,
+		touchInteractionMode,
+	} = parseUserConfig(pluginSettings, source);
 
 	// Setup Chessground API
 	const [chessView, setChessView] = useState<Api | null>(null);
@@ -320,7 +326,7 @@ export const ChessStudy = ({
 	}, [chessStudyId, dataAdapter, gameState.study]);
 
 	return (
-		<div className="chess-study">
+		<div className={`chess-study board-size-${boardSize}`}>
 			<div className="chessground-pgn-container">
 				<div className="chessground-container">
 					<ChessgroundWrapper
@@ -340,6 +346,7 @@ export const ChessStudy = ({
 						}
 						shapes={gameState.currentMove?.shapes || []}
 						drawMode={drawMode}
+						touchInteractionMode={touchInteractionMode}
 					/>
 				</div>
 

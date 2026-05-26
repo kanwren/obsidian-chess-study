@@ -87,10 +87,22 @@
 .chess-study .chessground-pgn-container .chessground-container {
 	width: 100%;
 	aspect-ratio: 1 / 1;
-	/* Keep the board readable but never taller than the viewport on
-	   landscape tablets. */
-	max-width: min(100%, 95vh);
+	/* Default cap. Overridden per .chess-study.board-size-* below. */
+	max-width: min(100%, var(--cs-board-max, 95vh));
 	align-self: center;
+}
+
+/* Per-block / global board size caps. Apply on the mobile/stacked
+   layout. The desktop side-by-side breakpoint pins the board to its
+   own 450px column, so the cap doesn't apply there. */
+.chess-study.board-size-s {
+	--cs-board-max: 320px;
+}
+.chess-study.board-size-m {
+	--cs-board-max: 480px;
+}
+.chess-study.board-size-l {
+	--cs-board-max: 640px;
 }
 
 .chess-study .chessground-pgn-container .pgn-container {

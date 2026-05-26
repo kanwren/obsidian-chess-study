@@ -5,6 +5,7 @@ import { Config } from 'chessground/config';
 import { DrawShape } from 'chessground/draw';
 import * as React from 'react';
 import { useEffect, useRef, useState } from 'react';
+import { TouchInteractionMode } from 'src/components/obsidian/SettingsTab';
 import {
 	PromotionPiece,
 	isPromotionMove,
@@ -25,6 +26,7 @@ export interface ChessgroundProps {
 	config?: Config;
 	boardColor?: 'brown' | 'green';
 	drawMode?: boolean;
+	touchInteractionMode?: TouchInteractionMode;
 }
 
 export const ChessgroundWrapper = React.memo(
@@ -39,6 +41,7 @@ export const ChessgroundWrapper = React.memo(
 		boardColor = 'green',
 		config = {},
 		drawMode = false,
+		touchInteractionMode = 'drag',
 	}: ChessgroundProps) => {
 		const ref = useRef<HTMLDivElement>(null);
 		const [pendingPromotion, setPendingPromotion] = useState<{
@@ -126,6 +129,14 @@ export const ChessgroundWrapper = React.memo(
 		useEffect(() => {
 			api?.set({ viewOnly: isViewOnly || drawMode });
 		}, [isViewOnly, drawMode, api]);
+
+		// Force tap-tap mode if configured
+		useEffect(() => {
+			api?.set({
+				draggable: { enabled: touchInteractionMode !== 'tap-tap' },
+				selectable: { enabled: true },
+			});
+		}, [api, touchInteractionMode]);
 
 		// Chessground only draws on right click/drag, so manually listen and
 		// draw here
