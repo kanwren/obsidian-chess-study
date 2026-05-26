@@ -4,8 +4,15 @@ import { Api } from 'chessground/api';
 import { Config } from 'chessground/config';
 import { DrawShape } from 'chessground/draw';
 import * as React from 'react';
-import { useEffect, useRef } from 'react';
-import { playOtherSide, toColor, toDests } from 'src/lib/chess-logic';
+import { useEffect, useRef, useState } from 'react';
+import {
+	PromotionPiece,
+	isPromotionMove,
+	playOtherSide,
+	toColor,
+	toDests,
+} from 'src/lib/chess-logic';
+import { PromotionPicker } from './PromotionPicker';
 
 export interface ChessgroundProps {
 	api: Api | null;
@@ -32,6 +39,11 @@ export const ChessgroundWrapper = React.memo(
 		config = {},
 	}: ChessgroundProps) => {
 		const ref = useRef<HTMLDivElement>(null);
+		const [pendingPromotion, setPendingPromotion] = useState<{
+			from: string;
+			to: string;
+			color: 'w' | 'b';
+		} | null>(null);
 
 		//Chessground Init
 		useEffect(() => {
@@ -70,14 +82,43 @@ export const ChessgroundWrapper = React.memo(
 					events: {
 						//Hook up the Chessground UI changes to our App State
 						after: (orig, dest, _metadata) => {
-							const handler = playOtherSide(api, chess);
+							const promotion = isPromotionMove(chess, orig, dest);
+							if (promotion) {
+								// Defer the move until the user picks a promotion
+								// piece; the picker calls back into completePromotion.
+								setPendingPromotion({
+									from: orig,
+									to: dest,
+									color: promotion.color,
+								});
+								return;
+							}
 
+							const handler = playOtherSide(api, chess);
 							addMoveToHistory(handler(orig, dest));
 						},
 					},
 				},
 			});
 		}, [addMoveToHistory, api, chess]);
+
+		const completePromotion = (piece: PromotionPiece) => {
+			if (!api || !pendingPromotion) return;
+			const handler = playOtherSide(api, chess);
+			addMoveToHistory(handler(pendingPromotion.from, pendingPromotion.to, piece));
+			setPendingPromotion(null);
+		};
+
+		const cancelPromotion = () => {
+			if (!api) {
+				setPendingPromotion(null);
+				return;
+			}
+			// Roll back the pawn to its origin since chessground has already
+			// rendered the half-move visually.
+			api.set({ fen: chess.fen() });
+			setPendingPromotion(null);
+		};
 
 		//Sync View Only
 		useEffect(() => {
@@ -106,8 +147,17 @@ export const ChessgroundWrapper = React.memo(
 		}, [api]);
 
 		return (
-			<div className={`${boardColor}-board height-width-100 table`}>
+			<div
+				className={`${boardColor}-board height-width-100 table chessground-board-host`}
+			>
 				<div ref={ref} className={`height-width-100`} />
+				{pendingPromotion && (
+					<PromotionPicker
+						color={pendingPromotion.color}
+						onSelect={completePromotion}
+						onCancel={cancelPromotion}
+					/>
+				)}
 			</div>
 		);
 	}

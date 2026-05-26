@@ -334,6 +334,68 @@ cg-board square.current-premove {
     height: 100%;
   }
 }
+.chess-study .chessground-board-host {
+  position: relative;
+}
+.chess-study .promotion-picker-backdrop {
+  position: absolute;
+  inset: 0;
+  background-color: rgba(0, 0, 0, 0.45);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 10;
+}
+.chess-study .promotion-picker {
+  background-color: var(--background-primary);
+  border: 1px solid var(--background-secondary-alt);
+  border-radius: 6px;
+  padding: 12px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.25);
+  max-width: 90%;
+}
+.chess-study .promotion-picker-label {
+  font-size: 0.85rem;
+  color: var(--text-muted);
+  text-align: center;
+  margin-bottom: 8px;
+}
+.chess-study .promotion-picker-options {
+  display: flex;
+  gap: 6px;
+  justify-content: center;
+}
+.chess-study .promotion-picker-option {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 48px;
+  height: 48px;
+  background-color: var(--background-secondary);
+  border: 1px solid var(--background-secondary-alt);
+  border-radius: 4px;
+  cursor: pointer;
+  color: var(--text-normal);
+  padding: 0;
+}
+.chess-study .promotion-picker-piece {
+  font-size: 32px;
+  line-height: 1;
+}
+@media (pointer: coarse) {
+  .chess-study .promotion-picker-option {
+    width: 56px;
+    height: 56px;
+  }
+  .chess-study .promotion-picker-piece {
+    font-size: 40px;
+  }
+}
+@media (hover: hover) {
+  .chess-study .promotion-picker-option:hover {
+    background-color: var(--background-secondary-alt);
+  }
+}
 .chess-study .move-item-section {
   display: flex;
   flex-direction: column;

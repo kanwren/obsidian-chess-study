@@ -1,4 +1,4 @@
-import { Chess, QUEEN, SQUARES, Square } from 'chess.js';
+import { Chess, PieceSymbol, Color, QUEEN, SQUARES, Square } from 'chess.js';
 import { Api } from 'chessground/api';
 import { Config } from 'chessground/config';
 
@@ -19,9 +19,32 @@ export function toDests(chess: Chess): Map<Square, Square[]> {
 	return dests;
 }
 
+
+export const PromotionPieces = ['q', 'r', 'b', 'n'] as const;
+export type PromotionPiece = Extract<PieceSymbol, (typeof PromotionPieces)[keyof typeof PromotionPieces]>;
+
+export function isPromotionMove(
+	chess: Chess,
+	orig: string,
+	dest: string
+): false | { color: Color } {
+	const piece = chess.get(orig as Square);
+	if (!piece || piece.type !== 'p') {
+		return false
+	};
+	const lastRank = dest[1];
+	const reachedLastRank =
+		(piece.color === 'w' && lastRank === '8') ||
+		(piece.color === 'b' && lastRank === '1');
+	if (!reachedLastRank) {
+		return false
+	};
+	return { color: piece.color };
+}
+
 export function playOtherSide(cg: Api, chess: Chess) {
-	return (orig: string, dest: string) => {
-		const move = chess.move({ from: orig, to: dest, promotion: QUEEN });
+	return (orig: string, dest: string, promotion: PromotionPiece = QUEEN) => {
+		const move = chess.move({ from: orig, to: dest, promotion });
 
 		const commonTurnProperties: Partial<Config> = {
 			turnColor: toColor(chess),
