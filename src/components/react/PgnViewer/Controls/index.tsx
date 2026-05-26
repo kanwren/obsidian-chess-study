@@ -11,7 +11,7 @@ export interface ControlActions {
 
 export const Controls = (props: ControlActions) => {
 	return (
-		<div>
+		<div className="controls">
 			<div className="button-section">
 				<button
 					title="Back"

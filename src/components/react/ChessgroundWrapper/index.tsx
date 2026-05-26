@@ -91,6 +91,20 @@ export const ChessgroundWrapper = React.memo(
 			}
 		}, [api, shapes]);
 
+		// Chessground caches piece sizes, so redraw the board when its
+		// container resizes
+		useEffect(() => {
+			if (!api || !ref.current || typeof ResizeObserver === 'undefined') {
+				return;
+			}
+
+			const observer = new ResizeObserver(() => {
+				api.redrawAll();
+			});
+			observer.observe(ref.current);
+			return () => observer.disconnect();
+		}, [api]);
+
 		return (
 			<div className={`${boardColor}-board height-width-100 table`}>
 				<div ref={ref} className={`height-width-100`} />

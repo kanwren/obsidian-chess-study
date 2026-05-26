@@ -258,13 +258,19 @@ cg-board square.current-premove {
   display: table;
 }
 .chess-study {
-  height: 100%;
-  max-width: 750px;
+  height: auto;
+  width: 100%;
   line-height: 1.5;
   -webkit-font-smoothing: antialiased;
   background-color: var(--background-secondary);
   border: 1px solid var(--background-secondary-alt);
   border-radius: 5px;
+}
+@media (min-width: 720px) {
+  .chess-study {
+    max-width: 750px;
+    height: 100%;
+  }
 }
 .chess-study *,
 .chess-study *::before,
@@ -291,18 +297,69 @@ cg-board square.current-premove {
 }
 .chess-study .chessground-pgn-container {
   display: flex;
-  height: 450px;
+  flex-direction: column;
 }
 .chess-study .chessground-pgn-container .chessground-container {
-  flex: 0 0 450px;
-  height: 100%;
+  width: 100%;
+  aspect-ratio: 1 / 1;
+  max-width: min(100%, 95vh);
+  align-self: center;
 }
 .chess-study .chessground-pgn-container .pgn-container {
-  flex: 1;
-  height: 100%;
+  flex: 0 0 auto;
+  width: 100%;
+}
+.chess-study .pgn-container > .height-width-100 {
+  height: auto;
+  width: 100%;
+}
+@media (min-width: 720px) {
+  .chess-study .chessground-pgn-container {
+    flex-direction: row;
+    height: 450px;
+  }
+  .chess-study .chessground-pgn-container .chessground-container {
+    flex: 0 0 450px;
+    height: 100%;
+    width: 450px;
+    max-width: none;
+    aspect-ratio: auto;
+    align-self: stretch;
+  }
+  .chess-study .chessground-pgn-container .pgn-container {
+    flex: 1;
+    height: 100%;
+  }
+  .chess-study .pgn-container > .height-width-100 {
+    height: 100%;
+  }
 }
 .chess-study .move-item-section {
-  height: 380px;
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+}
+@media (min-width: 720px) {
+  .chess-study .move-item-section {
+    height: 380px;
+  }
+}
+.chess-study .controls {
+  border-top: 1px solid var(--background-secondary-alt);
+  padding-top: 4px;
+  background-color: var(--background-secondary);
+}
+.chess-study .controls {
+  display: flex;
+  flex-direction: row;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 4px;
+}
+.chess-study .controls .button-section {
+  flex: 1 1 auto;
+  width: auto;
+  min-width: 0;
 }
 .chess-study .button-section {
   display: flex;
@@ -312,13 +369,51 @@ cg-board square.current-premove {
   gap: 4px;
   height: 32px;
 }
+@media (min-width: 720px) {
+  .chess-study .controls {
+    display: block;
+    border-top: none;
+    padding-top: 0;
+    background-color: transparent;
+  }
+  .chess-study .controls .button-section {
+    flex: initial;
+  }
+}
+@media (pointer: coarse) {
+  .chess-study .button-section {
+    height: 44px;
+  }
+  .chess-study .button-section button {
+    flex: 1;
+    min-height: 44px;
+  }
+}
 .chess-study .move-item-container {
   display: grid;
   grid-template-columns: 0.15fr 0.425fr 0.425fr;
   grid-auto-rows: minmax(35px, auto);
   width: 100%;
-  max-height: 380px;
-  overflow-y: scroll;
+  max-height: 30vh;
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
+  overscroll-behavior: contain;
+}
+@media (min-width: 720px) {
+  .chess-study .move-item-container {
+    max-height: 380px;
+  }
+}
+@media (pointer: coarse) {
+  .chess-study .move-item-container {
+    grid-auto-rows: minmax(40px, auto);
+  }
+  .chess-study .move-item,
+  .chess-study .variant-move-item {
+    min-height: 40px;
+    padding-top: 6px;
+    padding-bottom: 6px;
+  }
 }
 .chess-study .move-item-container > * {
   margin: 0;
@@ -326,11 +421,13 @@ cg-board square.current-premove {
 .chess-study .move-item {
   padding-left: 8px;
   user-select: none;
-}
-.chess-study .move-item:hover {
-  background-color: hsl(var(--accent-h), var(--accent-s), calc(var(--accent-l)));
-  color: var(--text-on-accent);
   cursor: pointer;
+}
+@media (hover: hover) {
+  .chess-study .move-item:hover {
+    background-color: hsl(var(--accent-h), var(--accent-s), calc(var(--accent-l)));
+    color: var(--text-on-accent);
+  }
 }
 .chess-study .move-item.active {
   background-color: hsl(var(--accent-h), var(--accent-s), calc(var(--accent-l) - 10%));
@@ -366,9 +463,13 @@ cg-board square.current-premove {
   padding: 4px 0;
   border-top: 1px solid var(--color-base-50);
 }
-.chess-study .variant-move-item.active,
-.chess-study .variant-move-item:hover {
+.chess-study .variant-move-item.active {
   color: hsl(var(--accent-h), var(--accent-s), calc(var(--accent-l) - 10%));
+}
+@media (hover: hover) {
+  .chess-study .variant-move-item:hover {
+    color: hsl(var(--accent-h), var(--accent-s), calc(var(--accent-l) - 10%));
+  }
 }
 .chess-study .variant-move-indicator {
   font-weight: bold;
@@ -385,10 +486,21 @@ cg-board square.current-premove {
   caret-color: #444;
 }
 .chess-study .CommentSection {
-  height: 250px;
+  --p-spacing: 0;
+  line-height: 1;
+  min-height: 150px;
+  max-height: 35vh;
   padding-top: 5px;
-  overflow: scroll;
+  overflow: auto;
+  -webkit-overflow-scrolling: touch;
   border-top: 1px solid var(--background-secondary-alt);
+}
+@media (min-width: 720px) {
+  .chess-study .CommentSection {
+    height: 250px;
+    min-height: 250px;
+    max-height: none;
+  }
 }
 .chess-study .ProseMirror,
 .chess-study .CommentSection > div {
