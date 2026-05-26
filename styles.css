@@ -337,6 +337,10 @@ cg-board square.current-premove {
 .chess-study .chessground-board-host {
   position: relative;
 }
+.chess-study .chessground-board-host.draw-mode,
+.chess-study .chessground-board-host.draw-mode * {
+  touch-action: none;
+}
 .chess-study .promotion-picker-backdrop {
   position: absolute;
   inset: 0;
@@ -410,6 +414,10 @@ cg-board square.current-premove {
   border-top: 1px solid var(--background-secondary-alt);
   padding-top: 4px;
   background-color: var(--background-secondary);
+}
+.chess-study .button-section button.draw-mode-active {
+  background-color: hsl(var(--accent-h), var(--accent-s), calc(var(--accent-l)));
+  color: var(--text-on-accent);
 }
 .chess-study .controls {
   display: flex;

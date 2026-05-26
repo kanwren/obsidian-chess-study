@@ -137,6 +137,13 @@
 	position: relative;
 }
 
+/* While draw mode is active, claim all touch gestures on the board so
+   a drag draws an arrow instead of scrolling the surrounding page. */
+.chess-study .chessground-board-host.draw-mode,
+.chess-study .chessground-board-host.draw-mode * {
+	touch-action: none;
+}
+
 .chess-study .promotion-picker-backdrop {
 	position: absolute;
 	inset: 0;
@@ -227,6 +234,11 @@
 	border-top: 1px solid var(--background-secondary-alt);
 	padding-top: 4px;
 	background-color: var(--background-secondary);
+}
+
+.chess-study .button-section button.draw-mode-active {
+	background-color: hsl(var(--accent-h), var(--accent-s), calc(var(--accent-l)));
+	color: var(--text-on-accent);
 }
 
 .chess-study .controls {

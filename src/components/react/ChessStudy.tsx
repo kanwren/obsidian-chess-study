@@ -63,6 +63,10 @@ export const ChessStudy = ({
 	// Setup Chessground API
 	const [chessView, setChessView] = useState<Api | null>(null);
 
+	// Touch-friendly draw mode (taps draw circles/arrows instead of moving
+	// pieces). Per-session UI state — not persisted.
+	const [drawMode, setDrawMode] = useState(false);
+
 	// Setup Chess.js API
 	const [initialChessLogic, firstPlayer, initialMoveNumber] = useMemo(() => {
 		const chess = new Chess(chessStudyData.rootFEN);
@@ -335,6 +339,7 @@ export const ChessStudy = ({
 							dispatch({ type: 'SYNC_SHAPES', shapes })
 						}
 						shapes={gameState.currentMove?.shapes || []}
+						drawMode={drawMode}
 					/>
 				</div>
 
@@ -364,6 +369,9 @@ export const ChessStudy = ({
 							const ok = await copyTextToClipboard(chessLogic.fen());
 							new Notice(ok ? 'Copied to clipboard!' : 'Could not copy to clipboard');
 						}}
+						drawMode={drawMode}
+						onToggleDrawMode={() => setDrawMode((m) => !m)}
+						onClearShapes={() => dispatch({ type: 'SYNC_SHAPES', shapes: [] })}
 					/>
 				</div>
 			</div>
