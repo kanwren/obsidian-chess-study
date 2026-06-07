@@ -29,6 +29,8 @@ export type ChessString = FEN | PGN;
 export const ROOT_FEN =
 	'rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1';
 
+const FEN_RE = /^([pnbrqkPNBRQK1-8]+\/){7}[pnbrqkPNBRQK1-8]+ [wb] ([KQkq]+|-) ([a-f][1-8]|-) [0-9]+ [0-9]+$/;
+
 // TODO:
 // 1) Allow to show the root position
 // 2) Display correct move after removing the last move
@@ -66,7 +68,7 @@ export default class ChessStudyPlugin extends Plugin {
 					try {
 						const chessStringTrimmed = chessString?.trim() ?? '';
 
-						const isFen = chessStringTrimmed.includes('/');
+						const isFen = FEN_RE.test(chessStringTrimmed);
 
 						const chess = isFen ? new Chess(chessStringTrimmed) : new Chess();
 
