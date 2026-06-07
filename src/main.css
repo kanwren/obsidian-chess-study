@@ -24,13 +24,26 @@
 }
 
 .chess-study {
-	height: 100%;
-	max-width: 750px;
+	/* On mobile, let the block size to its content — there is no parent
+	   height to fill, and inheriting 100% causes flex children below to
+	   stretch and leave a blank rectangle under the Controls. */
+	height: auto;
+	width: 100%;
 	line-height: 1.5;
 	-webkit-font-smoothing: antialiased;
 	background-color: var(--background-secondary);
 	border: 1px solid var(--background-secondary-alt);
 	border-radius: 5px;
+}
+
+/* Cap container width and restore the original 100%-fill height on
+   desktop only; on phones the block fills the available reading column
+   and sizes vertically to content. */
+@media (min-width: 720px) {
+	.chess-study {
+		max-width: 750px;
+		height: 100%;
+	}
 }
 
 .chess-study *,
@@ -59,26 +72,199 @@
 	overflow-wrap: break-word;
 }
 
-/* Container */
+/* Container.
+
+   Mobile (default): stack board on top of the PGN viewer, let the board
+   size itself from the available width via aspect-ratio.
+
+   Desktop (>= 720px): restore the original side-by-side layout, with a
+   fixed-width square board and the PGN viewer filling the remainder. */
 .chess-study .chessground-pgn-container {
 	display: flex;
-	height: 450px;
+	flex-direction: column;
 }
 
 .chess-study .chessground-pgn-container .chessground-container {
-	flex: 0 0 450px;
-	height: 100%;
+	width: 100%;
+	aspect-ratio: 1 / 1;
+	/* Default cap. Overridden per .chess-study.board-size-* below. */
+	max-width: min(100%, var(--cs-board-max, 95vh));
+	align-self: center;
+}
+
+/* Per-block / global board size caps. Apply on the mobile/stacked
+   layout. The desktop side-by-side breakpoint pins the board to its
+   own 450px column, so the cap doesn't apply there. */
+.chess-study.board-size-s {
+	--cs-board-max: 320px;
+}
+.chess-study.board-size-m {
+	--cs-board-max: 480px;
+}
+.chess-study.board-size-l {
+	--cs-board-max: 640px;
 }
 
 .chess-study .chessground-pgn-container .pgn-container {
-	flex: 1;
-	height: 100%;
+	flex: 0 0 auto;
+	width: 100%;
+}
+
+/* The PgnViewer root uses the global `.height-width-100` helper which
+   sets height: 100%. On mobile the pgn-container is content-sized, so
+   inheriting 100% would either collapse or stretch unpredictably. Pin
+   it to auto on mobile and restore at the desktop breakpoint. */
+.chess-study .pgn-container > .height-width-100 {
+	height: auto;
+	width: 100%;
+}
+
+@media (min-width: 720px) {
+	.chess-study .chessground-pgn-container {
+		flex-direction: row;
+		height: 450px;
+	}
+
+	.chess-study .chessground-pgn-container .chessground-container {
+		flex: 0 0 450px;
+		height: 100%;
+		width: 450px;
+		max-width: none;
+		aspect-ratio: auto;
+		align-self: stretch;
+	}
+
+	.chess-study .chessground-pgn-container .pgn-container {
+		flex: 1;
+		height: 100%;
+	}
+
+	.chess-study .pgn-container > .height-width-100 {
+		height: 100%;
+	}
+}
+
+/* Promotion picker overlay (shown when a pawn reaches the last rank). */
+.chess-study .chessground-board-host {
+	position: relative;
+}
+
+/* While draw mode is active, claim all touch gestures on the board so
+   a drag draws an arrow instead of scrolling the surrounding page. */
+.chess-study .chessground-board-host.draw-mode,
+.chess-study .chessground-board-host.draw-mode * {
+	touch-action: none;
+}
+
+.chess-study .promotion-picker-backdrop {
+	position: absolute;
+	inset: 0;
+	background-color: rgba(0, 0, 0, 0.45);
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	z-index: 10;
+}
+
+.chess-study .promotion-picker {
+	background-color: var(--background-primary);
+	border: 1px solid var(--background-secondary-alt);
+	border-radius: 6px;
+	padding: 12px;
+	box-shadow: 0 4px 12px rgba(0, 0, 0, 0.25);
+	max-width: 90%;
+}
+
+.chess-study .promotion-picker-label {
+	font-size: 0.85rem;
+	color: var(--text-muted);
+	text-align: center;
+	margin-bottom: 8px;
+}
+
+.chess-study .promotion-picker-options {
+	display: flex;
+	gap: 6px;
+	justify-content: center;
+}
+
+.chess-study .promotion-picker-option {
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	width: 48px;
+	height: 48px;
+	background-color: var(--background-secondary);
+	border: 1px solid var(--background-secondary-alt);
+	border-radius: 4px;
+	cursor: pointer;
+	color: var(--text-normal);
+	padding: 0;
+}
+
+.chess-study .promotion-picker-piece {
+	font-size: 32px;
+	line-height: 1;
+}
+
+@media (pointer: coarse) {
+	.chess-study .promotion-picker-option {
+		width: 56px;
+		height: 56px;
+	}
+
+	.chess-study .promotion-picker-piece {
+		font-size: 40px;
+	}
+}
+
+@media (hover: hover) {
+	.chess-study .promotion-picker-option:hover {
+		background-color: var(--background-secondary-alt);
+	}
 }
 
 /* PGN Viewer */
 
 .chess-study .move-item-section {
-	height: 380px;
+	/* Wraps the scroll container; the cap lives on .move-item-container
+	   so overflow actually triggers. */
+	display: flex;
+	flex-direction: column;
+	min-height: 0;
+}
+
+@media (min-width: 720px) {
+	.chess-study .move-item-section {
+		height: 380px;
+	}
+}
+
+.chess-study .controls {
+	/* Visually separate Controls from the move list so a long move list
+	   doesn't appear to touch the buttons. */
+	border-top: 1px solid var(--background-secondary-alt);
+	padding-top: 4px;
+	background-color: var(--background-secondary);
+}
+
+.chess-study .button-section button.draw-mode-active {
+	background-color: hsl(var(--accent-h), var(--accent-s), calc(var(--accent-l)));
+	color: var(--text-on-accent);
+}
+
+.chess-study .controls {
+	display: flex;
+	flex-direction: row;
+	flex-wrap: wrap;
+	justify-content: center;
+	gap: 4px;
+}
+
+.chess-study .controls .button-section {
+	flex: 1 1 auto;
+	width: auto;
+	min-width: 0;
 }
 
 .chess-study .button-section {
@@ -90,6 +276,32 @@
 	height: 32px;
 }
 
+/* Restore the original two-stacked-rows arrangement on desktop. */
+@media (min-width: 720px) {
+	.chess-study .controls {
+		display: block;
+		border-top: none;
+		padding-top: 0;
+		background-color: transparent;
+	}
+
+	.chess-study .controls .button-section {
+		flex: initial;
+	}
+}
+
+/* Larger, fuller-width tap targets on touch. */
+@media (pointer: coarse) {
+	.chess-study .button-section {
+		height: 44px;
+	}
+
+	.chess-study .button-section button {
+		flex: 1;
+		min-height: 44px;
+	}
+}
+
 /* Move Items */
 
 .chess-study .move-item-container {
@@ -97,8 +309,32 @@
 	grid-template-columns: 0.15fr 0.425fr 0.425fr;
 	grid-auto-rows: minmax(35px, auto);
 	width: 100%;
-	max-height: 380px;
-	overflow-y: scroll;
+	/* On mobile cap the move list at ~30vh so the Controls bar stays
+	   visible without scrolling the surrounding note. */
+	max-height: 30vh;
+	overflow-y: auto;
+	-webkit-overflow-scrolling: touch;
+	overscroll-behavior: contain;
+}
+
+@media (min-width: 720px) {
+	.chess-study .move-item-container {
+		max-height: 380px;
+	}
+}
+
+/* Larger tap targets on touch devices. */
+@media (pointer: coarse) {
+	.chess-study .move-item-container {
+		grid-auto-rows: minmax(40px, auto);
+	}
+
+	.chess-study .move-item,
+	.chess-study .variant-move-item {
+		min-height: 40px;
+		padding-top: 6px;
+		padding-bottom: 6px;
+	}
 }
 
 .chess-study .move-item-container > * {
@@ -108,12 +344,18 @@
 .chess-study .move-item {
 	padding-left: 8px;
 	user-select: none;
+	cursor: pointer;
 }
 
-.chess-study .move-item:hover {
-	background-color: hsl(var(--accent-h), var(--accent-s), calc(var(--accent-l)));
-	color: var(--text-on-accent);
-	cursor: pointer;
+@media (hover: hover) {
+	.chess-study .move-item:hover {
+		background-color: hsl(
+			var(--accent-h),
+			var(--accent-s),
+			calc(var(--accent-l))
+		);
+		color: var(--text-on-accent);
+	}
 }
 
 .chess-study .move-item.active {
@@ -162,9 +404,14 @@
 	border-top: 1px solid var(--color-base-50);
 }
 
-.chess-study .variant-move-item.active,
-.chess-study .variant-move-item:hover {
+.chess-study .variant-move-item.active {
 	color: hsl(var(--accent-h), var(--accent-s), calc(var(--accent-l) - 10%));
+}
+
+@media (hover: hover) {
+	.chess-study .variant-move-item:hover {
+		color: hsl(var(--accent-h), var(--accent-s), calc(var(--accent-l) - 10%));
+	}
 }
 
 .chess-study .variant-move-indicator {
@@ -186,10 +433,23 @@
 }
 
 .chess-study .CommentSection {
-	height: 250px;
+	--p-spacing: 0;
+	line-height: 1;
+	min-height: 100px;
+	max-height: 35vh;
 	padding-top: 5px;
-	overflow: scroll;
+	padding-left: 5px;
+	padding-right: 5px;
+	overflow: auto;
+	-webkit-overflow-scrolling: touch;
 	border-top: 1px solid var(--background-secondary-alt);
+}
+
+@media (min-width: 720px) {
+	.chess-study .CommentSection {
+		min-height: 75px;
+		max-height: none;
+	}
 }
 
 .chess-study .ProseMirror,

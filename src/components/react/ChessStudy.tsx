@@ -7,6 +7,7 @@ import { App, Notice } from 'obsidian';
 import * as React from 'react';
 import { useCallback, useMemo, useState } from 'react';
 import { ChessStudyPluginSettings } from 'src/components/obsidian/SettingsTab';
+import { copyTextToClipboard } from 'src/lib/clipboard';
 import { parseUserConfig } from 'src/lib/obsidian';
 import {
 	ChessStudyDataAdapter,
@@ -56,11 +57,21 @@ export const ChessStudy = ({
 	dataAdapter,
 }: AppProps) => {
 	// Parse Obsidian / Code Block Settings
-	const { boardColor, boardOrientation, viewComments, chessStudyId } =
-		parseUserConfig(pluginSettings, source);
+	const {
+		boardColor,
+		boardOrientation,
+		viewComments,
+		chessStudyId,
+		boardSize,
+		touchInteractionMode,
+	} = parseUserConfig(pluginSettings, source);
 
 	// Setup Chessground API
 	const [chessView, setChessView] = useState<Api | null>(null);
+
+	// Touch-friendly draw mode (taps draw circles/arrows instead of moving
+	// pieces). Per-session UI state — not persisted.
+	const [drawMode, setDrawMode] = useState(false);
 
 	// Setup Chess.js API
 	const [initialChessLogic, firstPlayer, initialMoveNumber] = useMemo(() => {
@@ -315,7 +326,7 @@ export const ChessStudy = ({
 	}, [chessStudyId, dataAdapter, gameState.study]);
 
 	return (
-		<div className="chess-study">
+		<div className={`chess-study board-size-${boardSize}`}>
 			<div className="chessground-pgn-container">
 				<div className="chessground-container">
 					<ChessgroundWrapper
@@ -334,6 +345,8 @@ export const ChessStudy = ({
 							dispatch({ type: 'SYNC_SHAPES', shapes })
 						}
 						shapes={gameState.currentMove?.shapes || []}
+						drawMode={drawMode}
+						touchInteractionMode={touchInteractionMode}
 					/>
 				</div>
 
@@ -359,14 +372,13 @@ export const ChessStudy = ({
 							})
 						}
 						onSaveButtonClick={onSaveButtonClick}
-						onCopyButtonClick={() => {
-							try {
-								navigator.clipboard.writeText(chessLogic.fen());
-								new Notice('Copied to clipboard!');
-							} catch (e) {
-								new Notice('Could not copy to clipboard:', e);
-							}
+						onCopyButtonClick={async () => {
+							const ok = await copyTextToClipboard(chessLogic.fen());
+							new Notice(ok ? 'Copied to clipboard!' : 'Could not copy to clipboard');
 						}}
+						drawMode={drawMode}
+						onToggleDrawMode={() => setDrawMode((m) => !m)}
+						onClearShapes={() => dispatch({ type: 'SYNC_SHAPES', shapes: [] })}
 					/>
 				</div>
 			</div>
