@@ -307,7 +307,6 @@
 .chess-study .move-item-container {
 	display: grid;
 	grid-template-columns: 0.15fr 0.425fr 0.425fr;
-	grid-auto-rows: minmax(35px, auto);
 	width: 100%;
 	/* On mobile cap the move list at ~30vh so the Controls bar stays
 	   visible without scrolling the surrounding note. */
@@ -389,6 +388,7 @@
 	background-color: var(--color-base-10);
 	user-select: none;
 	cursor: default;
+	min-height: 35px;
 }
 
 .chess-study .variant-move-item {
